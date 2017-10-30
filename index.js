@@ -2,28 +2,42 @@ const YOUTUBE_SEARCH_URL = 'https://www.googleapis.com/youtube/v3/search';
 
 function getDataFromApi (search, callback) {
   const query = {
-    q: `${search} in:name`,
+    part: 'snippet',
+    key: 'AIzaSyC3AMAl7E3_ZB70RdRD25lLy8JYu4unO6g',
+    q: search,
     per_page: 5
   }
-  $.getJSON(GITHUB_SEARCH_URL, query, callback);search
+  $.getJSON(YOUTUBE_SEARCH_URL, query, callback);
 }
 
 function renderResult(result) {
-  return `
-    <div>
-      <h2>
-      <a class="js-result-name" href="${result.html_url}" target="_blank">$result.name}</a> by <a class="js-user-name" href="${result.owner.html.url}" target="_blank">${result.owner.login}</a></h2>
-      `;
+/* Object destructuring */
+  const { snippet } =  result;
+  console.log(result);
+  console.log(snippet);
+  return (
+      `<a href=" https://www.youtube.com/watch?v=${result.id.videoId}">
+        <div class="thumbnail display">
+          <img class="thumbnail" src="${snippet.thumbnails.medium.url}">
+          <h2>${snippet.title}</h2> ${snippet.description}
+        </div>
+      </a>`
+    );
+}
 
-      function displayYouTubeSearchData(data) {
-        const results = data.items.map((item, index) => renderResult(item));
-        $('.js-search-form').submit(event => {
-        event.preventDefault();
-        const queryTarget = $(event.currentTarget).find('.js-query');
-        const query = queryTarget.val();
-        queryTarget.val("");
-        getDataFromApi(query,displayYouTubeSearchData);
-      });
+  function displayYouTubeSearchData(data) {
+    const results = data.items.map((item, index) => renderResult(item));
+    $('.js-search-results').html(results);
+  }
+
+  function watchSubmit() {
+    $('.js-search-form').submit(event => {
+    event.preventDefault();
+    const queryTarget = $(event.currentTarget).find('.js-query');
+    const query = queryTarget.val();
+    queryTarget.val("");
+    getDataFromApi(query,displayYouTubeSearchData);
+  });
   }
 
   $(watchSubmit);
